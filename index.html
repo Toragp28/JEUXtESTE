@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Street Fighter - Login</title>
+    <link rel="stylesheet" href="ste.css">
+</head>
+<body>
+    <div class="login-container">
+        <h1>Street Fighter</h1>
+        <form id="login-form">
+            <input type="text" id="username" placeholder="Username" required>
+            <button type="submit">Login</button>
+        </form>
+        <div id="create-game">
+            <button id="create-game-btn">Create Game</button>
+        </div>
+    </div>
+
+    <div id="game-container" style="display: none;">
+        <!-- This will be populated by game.js -->
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
+    <script src="ste.js"></script>
+    <script src="index.js"></script>
+</body>
+</html>
+
+
+
+
+
+
