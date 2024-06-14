@@ -108,3 +108,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
             });
+ }
+
+    function updatePosition(player, position) {
+        fetch('/move', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ player, position })
+        });
+    }
+});
