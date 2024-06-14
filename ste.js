@@ -29,12 +29,12 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'arrowleft':
                 player1Position = Math.max(0, player1Position - 10);
                 player1.style.left = player1Position + 'px';
-                socket.emit('move', { player: 'player1', position: player1Position });
+                updatePosition('player1', player1Position);
                 break;
             case 'arrowright':
                 player1Position = Math.min(gameContainer.clientWidth - player1.offsetWidth, player1Position + 10);
                 player1.style.left = player1Position + 'px';
-                socket.emit('move', { player: 'player1', position: player1Position });
+                updatePosition('player1', player1Position);
                 break;
             case 'arrowup':
                 if (!player1Jumping) {
@@ -43,19 +43,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 break;
             case 'arrowdown':
-                attack(player2);
-                socket.emit('attack', { player: 'player1' });
+                attack('player1');
                 break;
             // Player 2 controls
             case 'a':
                 player2Position = Math.max(0, player2Position - 10);
                 player2.style.left = player2Position + 'px';
-                socket.emit('move', { player: 'player2', position: player2Position });
+                updatePosition('player2', player2Position);
                 break;
             case 'd':
                 player2Position = Math.min(gameContainer.clientWidth - player2.offsetWidth, player2Position + 10);
                 player2.style.left = player2Position + 'px';
-                socket.emit('move', { player: 'player2', position: player2Position });
+                updatePosition('player2', player2Position);
                 break;
             case 'w':
                 if (!player2Jumping) {
@@ -64,8 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 break;
             case 's':
-                attack(player1);
-                socket.emit('attack', { player: 'player2' });
+                attack('player2');
                 break;
         }
     });
@@ -90,73 +88,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 50);
     }
 
-    function attack(target) {
-        if (checkCollision()) {
-            let damage = normalDamage;
-            if (Math.random() < criticalHitChance) {
-                damage = criticalDamage;
-            }
-            
-            if (target === player1) {
-                player1Health -= damage;
-            } else if (target === player2) {
-                player2Health -= damage;
-            }
-            updateHealthBar();
-            checkGameOver();
-        }
-    }
-
-    function checkCollision() {
-        const player1Rect = player1.getBoundingClientRect();
-        const player2Rect = player2.getBoundingClientRect();
-        return !(player1Rect.right < player2Rect.left || 
-                 player1Rect.left > player2Rect.right || 
-                 player1Rect.bottom < player2Rect.top || 
-                 player1Rect.top > player2Rect.bottom);
-    }
-
-    function updateHealthBar() {
-        player1HealthBarInner.style.width = player1Health + '%';
-        player2HealthBarInner.style.width = player2Health + '%';
-    }
-
-    function checkGameOver() {
-        if (player1Health <= 0) {
-            winnerMessage.textContent = 'Player 2 Wins!';
-            winnerMessage.style.display = 'block';
-            socket.emit('gameOver', 'player2');
-        } else if (player2Health <= 0) {
-            winnerMessage.textContent = 'Player 1 Wins!';
-            winnerMessage.style.display = 'block';
-            socket.emit('gameOver', 'player1');
-        }
-    }
-
-    socket.on('moveOpponent', (data) => {
-        if (data.player === 'player2') {
-            player2Position = data.position;
-            player2.style.left = player2Position + 'px';
-        } else {
-            player1Position = data.position;
-            player1.style.left = player1Position + 'px';
-        }
-    });
-
-    socket.on('attackOpponent', (data) => {
-        if (data.player === 'player2') {
-            attack(player1);
-        } else {
-            attack(player2);
-        }
-    });
-
-    socket.on('gameOver', (winner) => {
-        if (winner === 'player1') {
-            winnerMessage.textContent = 'Player 1 Wins!';
-        } else {
-            winnerMessage.textContent = 'Player 2 Wins!';
-        }
-        winnerMessage.style.display = 'block';
-    });
-});
+    function attack(attacker) {
+        fetch('/attack', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ attacker })
+        }).then(response => response.json())
+            .then(data => {
+                if (data.gameOver) {
+                    winnerMessage.textContent = data.message;
+                    winnerMessage.style.display = 'block';
+                } else {
+                    if (attacker === 'player1') {
+                        player2Health = data.health;
+                        player2HealthBarInner.style.width = player2Health + '%';
+                    } else {
+                        player1Health = data.health;
+                        player1HealthBarInner.style.width = player1Health + '%';
+                    }
+                }
+            });
