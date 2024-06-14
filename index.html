@@ -19,14 +19,27 @@
     </div>
 
     <div id="game-container" style="display: none;">
-        <!-- This will be populated by game.js -->
+        <div class="game-container">
+            <div class="health-container">
+                <div class="health-bar" id="player1-health-container">
+                    <div class="health-bar-inner" id="player1-health"></div>
+                </div>
+                <div class="health-bar" id="player2-health-container">
+                    <div class="health-bar-inner" id="player2-health"></div>
+                </div>
+            </div>
+            <div class="character" id="player1"></div>
+            <div class="character" id="player2"></div>
+            <div id="winner-message"></div>
+        </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
-    <script src="ste.js"></script>
     <script src="index.js"></script>
+    <script src="ste.js"></script>
 </body>
 </html>
+
 
 
 
