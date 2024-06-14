@@ -1,6 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const socket = io(); // Initialize Socket.IO
-
     const loginForm = document.getElementById('login-form');
     const usernameInput = document.getElementById('username');
     const createGameBtn = document.getElementById('create-game-btn');
@@ -11,14 +9,23 @@ document.addEventListener('DOMContentLoaded', () => {
         event.preventDefault();
         const username = usernameInput.value.trim();
         if (username) {
-            socket.emit('login', username);
-            loginContainer.style.display = 'none';
-            gameContainer.style.display = 'block';
+            fetch('/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username })
+            }).then(response => {
+                if (response.ok) {
+                    loginContainer.style.display = 'none';
+                    gameContainer.style.display = 'block';
+                }
+            });
         }
     });
 
     createGameBtn.addEventListener('click', () => {
-        socket.emit('createGame');
+        fetch('/createGame', { method: 'POST' })
+            .then(response => response.ok && console.log('Game created'));
     });
 });
+
 
